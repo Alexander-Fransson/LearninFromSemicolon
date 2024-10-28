@@ -1,7 +1,7 @@
 mod enumexamples;
-
-use enumexamples::*;
+mod loopexamples;
+mod matchexamples;
 
 fn main() {
-    use_fruit();
+    matchexamples::match_examples();
 }

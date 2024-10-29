@@ -3,7 +3,8 @@ mod loopexamples;
 mod matchexamples;
 mod iterexamples;
 mod structexamples;
+mod readfromfileexample;
 
 fn main() {
-    matchexamples::match_examples();
+    readfromfileexample::read_from_file();
 }

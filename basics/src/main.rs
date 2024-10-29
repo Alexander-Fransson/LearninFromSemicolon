@@ -5,7 +5,8 @@ mod iterexamples;
 mod structexamples;
 mod fileexample;
 mod genericsexample;
+mod threadsexample;
 
 fn main() {
-    genericsexample::demonstrate_generic();
+
 }

@@ -4,7 +4,8 @@ mod matchexamples;
 mod iterexamples;
 mod structexamples;
 mod fileexample;
+mod genericsexample;
 
 fn main() {
-    fileexample::write_to_file();
+    genericsexample::demonstrate_generic();
 }

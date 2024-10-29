@@ -16,7 +16,6 @@ pub fn struct_demonstration() {
             }
         }
 
-        // when you include self the method is called a trait
         fn greet(&self) {
             println!("Hello, my name is {} and I'm {} years old", self.name, self.age);
         }

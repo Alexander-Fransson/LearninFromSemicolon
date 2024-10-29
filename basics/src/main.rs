@@ -1,12 +1,5 @@
-mod enumexamples;
-mod loopexamples;
-mod matchexamples;
-mod iterexamples;
-mod structexamples;
-mod fileexample;
-mod genericsexample;
-mod threadsexample;
+mod topics;
 
 fn main() {
-    
+    topics::threadsexample::produce_using_multiple_threads();
 }

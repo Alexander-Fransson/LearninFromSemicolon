@@ -20,6 +20,11 @@ pub fn macro_example() {
     sneeze!();
 }
 
+pub fn debug_with_dbg() {
+    let sum = dbg!(add!(1, 2)); // will print the value and the line, useful for debugging instead of printing console logging with println
+    println!("{}", sum);
+}
+
 /*
     why use macros?
 

@@ -9,3 +9,4 @@ pub mod threadsexample;
 pub mod asyncexamples;
 pub mod macroexamples;
 pub mod httpexamples;
+pub mod jsonexamples;

@@ -4,6 +4,22 @@ use std::thread;
 use std::time::Duration;
 use std::sync::mpsc; // multiple producer, single consumer
 
+pub fn sync_channels() {
+    let (sender, receiver) = mpsc::sync_channel(1); // buffer size(); waits for things to be sent?
+    thread::spawn(move || {
+        for i in 1..3 {
+            sender.send("Message").unwrap();
+            println!("Message: '{}' sent", i);
+        }
+    });
+
+    thread::sleep(Duration::from_millis(400));
+
+    for msg in receiver {
+        println!("Message received: {}", msg);
+    }
+}
+
 pub fn produce_using_multiple_threads() {
     let (sender, receiver) = mpsc::channel();
     let cloned_sender = sender.clone(); // clone sender to send to other thread

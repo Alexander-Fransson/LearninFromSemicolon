@@ -1,5 +1,6 @@
 mod topics;
 
-fn main() {
-    topics::threadsexample::sync_channels();
+#[tokio::main]
+async fn main() {
+    topics::asyncexamples::tokio_select_example().await;
 }

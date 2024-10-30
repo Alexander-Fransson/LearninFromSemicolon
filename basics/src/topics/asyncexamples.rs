@@ -5,6 +5,25 @@ use std::time::Duration;
 // add tokio by cargo add tokio, it allows main to be async
 // add #[tokio::main] to main.rs
 
+pub async fn tokio_select_example() {
+    let (sender, receiver) = tokio::sync::oneshot::channel();
+    
+    tokio::spawn(async move {
+        sleep(Duration::from_secs(1)).await;
+        sender.send("hello").unwrap();
+    }); // runs in background
+
+    tokio::select! { // select runs the task that is finished first
+        _ = sleep(Duration::from_secs(2)) => {
+            println!("hello");
+        }
+        msg = receiver => {
+            println!("{}", msg.unwrap());
+        }           
+    }
+
+}
+
 pub async fn async_example() {
 
     async fn pretend_to_download() -> String {

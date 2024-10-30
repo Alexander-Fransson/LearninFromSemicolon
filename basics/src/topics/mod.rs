@@ -7,3 +7,4 @@ pub mod fileexample;
 pub mod genericsexample;
 pub mod threadsexample;
 pub mod asyncexamples;
+pub mod macroexamples;

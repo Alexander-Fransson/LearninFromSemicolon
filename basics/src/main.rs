@@ -1,8 +1,7 @@
-use topics::restexample;
-
 mod topics;
+mod tests;
 
 #[tokio::main]
 async fn main() {
-    restexample::test_rest_example().await;
+    
 }

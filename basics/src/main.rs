@@ -1,6 +1,8 @@
+use topics::restexample;
+
 mod topics;
 
 #[tokio::main]
 async fn main() {
-    topics::jsonexamples::serialize_example();
+    restexample::test_rest_example().await;
 }

@@ -1,3 +1,9 @@
-https://linuxiac.com/how-to-install-docker-on-linux-mint-21/
+to download docker on linux mint: https://linuxiac.com/how-to-install-docker-on-linux-mint-21/
 
 to see all containsers: docker ps -a
+to see all images: docker image ls
+
+to remove container: docker rm [id] // container needs to be removed before image
+to remove image: docker rmi [id]
+
+to get an image: docker image pull [ubuntu:latest] // f.ex

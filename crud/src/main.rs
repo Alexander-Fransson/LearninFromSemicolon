@@ -10,6 +10,8 @@ use controller::{
 
 mod model;
 mod controller;
+mod user_services;
+mod secret_consts;
 
 #[tokio::main]
     async fn main() {
@@ -17,7 +19,9 @@ mod controller;
     // postgres
     // docker & kubernetes
 
-    //to open postgres cli $ sudo -u user_name ("t.ex postgres") psql
+    // to open postgres cli $ sudo -u user_name ("t.ex postgres") psql
+    // to create database $ create database [name]
+    // to connect to database $ \c [name]
     
     let app = Router::new()
     .route("/users", get(list_users))

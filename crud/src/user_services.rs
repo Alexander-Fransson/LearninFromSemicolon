@@ -1,8 +1,9 @@
 use sqlx::{postgres::PgPoolOptions, PgPool, Error};
-use crate::model::User;
+use crate::model::{User, UserInfo};
 
 use crate::secret_consts;
 
+#[derive(Clone)]
 pub struct UserService {
     pool: PgPool
 }
@@ -32,7 +33,7 @@ impl UserService {
         Ok(user)
     }
 
-    pub async fn create_user(&self, user: User) -> Result<(), Error> {
+    pub async fn create_user(&self, user: UserInfo) -> Result<(), Error> {
         sqlx::query("INSERT INTO users (name, occupation, email, phone) VALUES ($1, $2, $3, $4)")
         .bind(user.name)
         .bind(user.occupation)
@@ -43,13 +44,13 @@ impl UserService {
         Ok(())
     }
 
-    pub async fn update_user(&self, user: User) -> Result<(), Error> {
+    pub async fn update_user(&self,id: i32, user: UserInfo) -> Result<(), Error> {
         sqlx::query("UPDATE users SET name = $1, occupation = $2, email = $3, phone = $4 WHERE id = $5")
         .bind(user.name)
         .bind(user.occupation)
         .bind(user.email)
         .bind(user.phone)
-        .bind(user.id)
+        .bind(id)
         .execute(&self.pool)
         .await?;
         Ok(())

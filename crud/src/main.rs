@@ -11,7 +11,6 @@ use controller::{
 mod model;
 mod controller;
 mod user_services;
-mod secret_consts;
 
 #[tokio::main]
     async fn main() {

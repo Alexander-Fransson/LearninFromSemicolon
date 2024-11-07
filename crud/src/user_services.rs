@@ -1,7 +1,8 @@
+use std::env;
+use dotenv::dotenv;
+
 use sqlx::{postgres::PgPoolOptions, PgPool, Error};
 use crate::model::{User, UserInfo};
-
-use crate::secret_consts;
 
 #[derive(Clone)]
 pub struct UserService {
@@ -10,9 +11,18 @@ pub struct UserService {
 
 impl UserService {
     pub async fn new() -> Result<Self, Error> {
+        dotenv().ok();
+
+        // dotenv does not work right now, probably becouse it is not in root
+        // lets see if he noticies it
+        let url = env::var("CONNECTION_STRING")
+        .expect("DATABASE_URL must be set");
+
+        println!("Database URL: {}", &url);
+
         let pool = PgPoolOptions::new()
         .max_connections(5)
-        .connect(secret_consts::DB_CONNECTION_STRING)
+        .connect(&url)
         .await?;
         Ok(Self { pool })
     }

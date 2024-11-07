@@ -16,5 +16,8 @@ serde_json = "1.0.132"
 sqlx = { version = "0.8.2", features = ["postgres", "macros", "runtime-tokio-native-tls"] }
 
 # async functions
-tokio = { version = "1.41.0", features = ["full"] }
+tokio = { version = "1.41.1", features = ["full"] }
+
+#dotenv
+dotenv = "0.15.0"
 

@@ -1,1 +1,27 @@
 version: '3.8'
+
+services:
+    postgres:
+        image: postgres:latest
+        ports:
+            - 5432:5432
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=abc123
+            - POSTGRES_DB= info_db
+        volumes:
+            - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+    rust_app:
+    
+        # must be built before it can start
+        image: crud:latest
+        ports:
+            - 3000:3000
+        environment:
+            - DATABASE_URL=postgres://postgres:abc123@localhost:5432/info_db
+        depends_on:
+            - postgres
+
+# to start
+# docker compose up 

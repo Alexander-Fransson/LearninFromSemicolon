@@ -15,10 +15,8 @@ impl UserService {
 
         // dotenv does not work right now, probably becouse it is not in root
         // lets see if he noticies it
-        let url = env::var("CONNECTION_STRING")
+        let url = env::var("DATABASE_URL")
         .expect("DATABASE_URL must be set");
-
-        println!("Database URL: {}", &url);
 
         let pool = PgPoolOptions::new()
         .max_connections(5)

@@ -1,3 +1,2 @@
 target/
-secret_consts.rs
-conf/
+.env

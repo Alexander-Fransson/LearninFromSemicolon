@@ -1,0 +1,10 @@
+[package]
+name = "opticode_tutorial"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = { version = "0.7.7", features = ["multipart"] }
+axum-extra = "0.9.4"
+reqwest = "0.12.9"
+tokio = { version = "1.41.1", features = ["full"] }

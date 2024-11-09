@@ -14,13 +14,12 @@ impl UserService {
         dotenv().ok();
 
         // dotenv does not work right now, probably becouse it is not in root
-        // lets see if he noticies it
         let url = env::var("DATABASE_URL")
         .expect("DATABASE_URL must be set");
 
         let pool = PgPoolOptions::new()
         .max_connections(5)
-        .connect(&url)
+        .connect(&url) // change it to something concrete to make it work on my machine
         .await?;
         Ok(Self { pool })
     }

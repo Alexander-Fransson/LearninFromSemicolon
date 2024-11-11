@@ -12,7 +12,7 @@ pub struct LoginResponse {
 }
 
 #[derive(Deserialize,Serialize)]
-pub struct Cliams {
+pub struct Claims {
     pub sub: String,
     pub exp: usize
 }

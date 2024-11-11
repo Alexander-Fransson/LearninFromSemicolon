@@ -24,4 +24,45 @@ mod tests {
 
         server_handler.abort();
     }
+
+    #[tokio::test]
+    async fn test_jwt_authentication() {
+        let server_handler = tokio::spawn(async move {
+            server().await;
+        });
+
+        tokio::time::sleep(Duration::from_millis(100)).await;
+
+        // making post request to login endpoint
+        let client = reqwest::Client::new();
+        let res = client.post("http://127.0.0.1:3000/login")
+        .json(&serde_json::json!({"username": "user", "password": "password"}))
+        .send()
+        .await
+        .unwrap();
+
+        assert_eq!(res.status(), StatusCode::OK);
+
+        // checking if the response contains the token
+        let token = res.text().await.unwrap();
+        assert!(token.contains("token"));
+
+        // get the token from the response string
+        let token_object: serde_json::Value = serde_json::from_str(&token).unwrap();
+        let token_value = token_object["token"].as_str().unwrap();
+
+        // making get request to info endpoint
+        let client = reqwest::Client::new();
+        let res = client.get("http://127.0.0.1:3000/info")
+        .header("Authorization", format!("Bearer {}", token_value))
+        .send()
+        .await
+        .unwrap();
+
+        assert_eq!(res.status(), StatusCode::OK);
+
+        server_handler.abort();
+    }
 }
+
+// next step is proper integration with db or to test web sockets with axum

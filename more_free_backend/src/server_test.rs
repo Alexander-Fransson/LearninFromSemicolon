@@ -4,6 +4,8 @@ mod tests {
     use crate::server;
     use axum::http::StatusCode;
     use std::time::Duration;
+    use tokio_tungstenite::connect_async;
+    use tokio_tungstenite::tungstenite::Message;
 
     #[tokio::test]
     async fn test_server() {
@@ -62,6 +64,23 @@ mod tests {
         assert_eq!(res.status(), StatusCode::OK);
 
         server_handler.abort();
+    }
+
+    #[tokio::test]
+    async fn test_websocket() {
+        let server_handler = tokio::spawn(async move {
+            server().await;
+        });
+
+        tokio::time::sleep(Duration::from_millis(100)).await;
+
+        let (mut ws, _) = connect_async("ws://127.0.0.1:3000/send")
+        .await.expect("Failed to connect");
+
+        //(Message::Text("hello".into())).await.expect("Failed to send message");
+        // dont seam to have the function
+
+        server_handler.abort();    
     }
 }
 

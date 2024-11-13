@@ -11,6 +11,7 @@ async fn handle_socket(mut socket: WebSocket) {
             Message::Text(text) => {
                 println!("Got message from client: {}", text);
                 let formatted_response = format!("You said: {}", text);
+                // do something using the server
                 socket.send(Message::Text(formatted_response)).await.unwrap();         
             },
             Message::Close(_) => {

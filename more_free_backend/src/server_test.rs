@@ -4,8 +4,9 @@ mod tests {
     use crate::server;
     use axum::http::StatusCode;
     use std::time::Duration;
-    use tokio_tungstenite::connect_async;
-    use tokio_tungstenite::tungstenite::Message;
+
+    use futures_util::{SinkExt, StreamExt}; // required for tungstenite to have send
+    use tokio_tungstenite::{connect_async, tungstenite::Message};
 
     #[tokio::test]
     async fn test_server() {
@@ -74,13 +75,14 @@ mod tests {
 
         tokio::time::sleep(Duration::from_millis(100)).await;
 
-        let (mut ws, _) = connect_async("ws://127.0.0.1:3000/send")
-        .await.expect("Failed to connect");
+        let (mut socket, _) = connect_async("ws://127.0.0.1:3000/send").await.unwrap();
+        socket.send(Message::Text("Hello".to_string())).await.unwrap();
 
-        //(Message::Text("hello".into())).await.expect("Failed to send message");
-        // dont seam to have the function
+        // wait for a message from the server
+        let msg = socket.next().await.unwrap().unwrap();
+        assert_eq!(msg, Message::Text("You said: Hello".to_string()));
 
-        server_handler.abort();    
+        server_handler.abort();
     }
 }
 

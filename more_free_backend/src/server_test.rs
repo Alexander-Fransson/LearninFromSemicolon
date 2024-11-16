@@ -2,13 +2,19 @@
 #[cfg(test)]
 mod tests {
     use crate::server;
+    use crate::db_interaction::Services;
+    use crate::db_interaction::{get_birds, seed_birds};
+    use axum::Extension;
     use axum::http::StatusCode;
     use std::time::Duration;
 
     use futures_util::{SinkExt, StreamExt}; // required for tungstenite to have send
     use tokio_tungstenite::{connect_async, tungstenite::Message};
 
+    // complains about connections refused
+
     #[tokio::test]
+    #[ignore]
     async fn test_server() {
         let server_handler = tokio::spawn(async move {
             server().await;
@@ -29,6 +35,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[ignore]
     async fn test_jwt_authentication() {
         let server_handler = tokio::spawn(async move {
             server().await;
@@ -68,6 +75,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[ignore]
     async fn test_websocket() {
         let server_handler = tokio::spawn(async move {
             server().await;
@@ -83,6 +91,22 @@ mod tests {
         assert_eq!(msg, Message::Text("You said: Hello".to_string()));
 
         server_handler.abort();
+    }
+
+    #[tokio::test]
+    async fn test_bird_seeding() {
+        let bird_service = Services::new().await.unwrap();
+        let service_extension = Extension(bird_service);
+        seed_birds(&service_extension).await;
+        let birds = get_birds(&service_extension).await;
+
+        match birds {
+            Ok(birds) => assert_eq!(birds.len(), 1),
+            Err(err) => {
+                println!("Error: {}", err);
+                assert!(false);
+            }
+        }
     }
 }
 

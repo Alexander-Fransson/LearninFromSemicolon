@@ -8,7 +8,7 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=pass
-      - POSTGRES_DB=info_db
+      - POSTGRES_DB=db_db
     restart: always
 
 # volumes can be used to have docker update when there are changes

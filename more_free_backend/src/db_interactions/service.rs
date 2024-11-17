@@ -2,8 +2,13 @@
 
 use sqlx::{PgPool, Error, query_as, query};
 use sqlx::postgres::PgPoolOptions;
+use chrono::{Utc,Duration};
+use axum::Json;
+use axum::http::StatusCode;
+use jsonwebtoken::{encode, Header, EncodingKey};
 use dotenv::dotenv;
 use std::env;
+use crate::model::{Claims, LoginResponse};
 use crate::db_interactions::models::{
     Bird,
     BirdInfo
@@ -29,6 +34,49 @@ impl Services { // I could propbably implement different things in diferent file
         .connect(&db_url) 
         .await?;
         Ok(Self { pool: connection_pool })
+    }
+
+    async fn is_bird_valid(&self, name: &str, password: &str) -> bool {
+        let pool = &self.pool;
+        let bird = query_as::<_, Bird>("SELECT * FROM birds WHERE name = $1 AND password = $2")
+        .bind(name)
+        .bind(password)
+        .fetch_one(pool)
+        .await;
+
+        match bird {
+            Ok(_bird) => true,
+            Err(_) => false
+        }
+    }
+
+    pub async fn login_as_bird(&self, name: &str, password: &str) -> Result<Json<LoginResponse>, StatusCode> {
+        let is_valid = self.is_bird_valid(name, password).await;
+
+        if is_valid {
+            dotenv().ok();
+
+            let claim = Claims {
+                sub: name.to_string(),
+                exp: (Utc::now() + Duration::days(1)).timestamp() as usize
+            };
+
+            let token = match encode(
+                &Header::default(), 
+                &claim,
+                &EncodingKey::from_secret(env::var("SECRET_KEY").unwrap().as_ref())
+            ) {
+                Ok(token) => token,
+                Err(err) => {
+                    println!("Error generating token: {}", err);
+                    return Err(StatusCode::INTERNAL_SERVER_ERROR);
+                },
+            };
+
+            Ok(Json(LoginResponse{token}))
+        } else {
+            Err(StatusCode::UNAUTHORIZED)
+        }
     }
 
     pub async fn seed_birds(&self) -> Result<(), sqlx::Error> {

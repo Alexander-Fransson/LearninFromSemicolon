@@ -3,7 +3,7 @@ mod server_test;
 mod model;
 mod controller;
 mod websockets;
-mod db_interaction;
+mod db_interactions;
 
 use crate::server::server;
 

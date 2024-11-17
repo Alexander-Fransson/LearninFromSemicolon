@@ -2,21 +2,19 @@
 #[cfg(test)]
 mod tests {
     use crate::server;
-    use crate::db_interaction::{
-        Services, 
-        BirdInfo
-    };
-    use crate::db_interaction::{
-        get_birds, 
-        seed_birds,
-        create_bird,
-        delete_bird,
-        update_bird,
-        get_bird
-    };
     use axum::Extension;
     use axum::http::StatusCode;
     use std::time::Duration;
+    use crate::db_interactions::controllers::{
+        create_bird,
+        delete_bird,
+        update_bird,
+        get_birds,
+        get_bird,
+        seed_birds
+    };
+    use crate::db_interactions::service::Services;
+    use crate::db_interactions::models::BirdInfo;
 
     use futures_util::{SinkExt, StreamExt}; // required for tungstenite to have send
     use tokio_tungstenite::{connect_async, tungstenite::Message};

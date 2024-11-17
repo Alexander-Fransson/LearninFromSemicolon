@@ -2,8 +2,18 @@
 #[cfg(test)]
 mod tests {
     use crate::server;
-    use crate::db_interaction::Services;
-    use crate::db_interaction::{get_birds, seed_birds};
+    use crate::db_interaction::{
+        Services, 
+        BirdInfo
+    };
+    use crate::db_interaction::{
+        get_birds, 
+        seed_birds,
+        create_bird,
+        delete_bird,
+        update_bird,
+        get_bird
+    };
     use axum::Extension;
     use axum::http::StatusCode;
     use std::time::Duration;
@@ -101,12 +111,70 @@ mod tests {
         let birds = get_birds(&service_extension).await;
 
         match birds {
-            Ok(birds) => assert_eq!(birds.len(), 1),
+            Ok(birds) => assert_ne!(birds.len(), 0),
             Err(err) => {
                 println!("Error: {}", err);
                 assert!(false);
             }
         }
+    }
+
+    #[tokio::test]
+    async fn test_bird_crud() {
+        let bird_service = Services::new().await.unwrap();
+        let service_extension = Extension(bird_service);
+        seed_birds(&service_extension).await;
+        
+        let created_bird = create_bird(&service_extension, BirdInfo {
+            name: "test".to_string(),
+            password: "test".to_string()
+        }).await;
+
+        let new_bird_id = match created_bird {
+            Ok(bird) => {
+                assert_eq!(bird.name, "test");
+                bird.id
+            },
+            Err(err) => {
+                println!("Failed to create bird, Error: {}", err);
+                assert!(false);
+                0
+            }
+        };
+
+        let updated_bird = update_bird(&service_extension, new_bird_id, BirdInfo {
+            name: "test2".to_string(),
+            password: "test2".to_string()
+        }).await;
+
+        match updated_bird {
+            Ok(bird) => assert_eq!(bird.name, "test2"),
+            Err(err) => {
+                println!("Failed to update bird, Error: {}", err);
+                assert!(false);
+            }
+        }
+
+        let the_bird = get_bird(&service_extension, new_bird_id).await;
+
+        match the_bird {
+            Ok(bird) => assert_eq!(bird.name, "test2"),
+            Err(err) => {
+                println!("Failed to get bird, Error: {}", err);
+                assert!(false);
+            }
+        }
+
+        let bird_deleted = delete_bird(&service_extension, new_bird_id).await;
+
+        match bird_deleted {
+            Ok(_) => assert!(true),
+            Err(err) => {
+                println!("Failed to delete bird, Error: {}", err);
+                assert!(false);
+            }
+        }
+        
     }
 }
 

@@ -8,7 +8,6 @@ pub struct Bird {
     pub name: String,
     pub password: String
 }
-
 pub struct BirdInfo {
     pub name: String,
     pub password: String

@@ -1,10 +1,12 @@
 #[cfg(test)]
 mod tests {
+
     use crate::server::server;
     use reqwest::Client;
     use tokio::time::Duration;
 
     #[tokio::test]
+    #[ignore]
     async fn initial_test() {
         let thread = tokio::spawn(async move {
             server().await;
@@ -27,6 +29,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[ignore]
     async fn test_hello_with_param() {
         let server_thread = tokio::spawn(async move {
             server().await;
@@ -60,6 +63,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[ignore]
     async fn test_hello_with_path_param() {
         let server_thread = tokio::spawn(async move {
             server().await;

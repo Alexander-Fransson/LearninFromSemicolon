@@ -4,10 +4,13 @@ use axum::Router;
 use tokio::net::TcpListener;
 use axum::routing::get;
 use crate::models::HelloParams;
+use crate::static_routes::routes::routes_static;
 use axum::response::IntoResponse;
 
 pub async fn server() {
-    let router = Router::new().merge(basic_routes());
+    let router = Router::new()
+    .merge(basic_routes())
+    .fallback_service(routes_static());
 
     let listener = TcpListener::bind("127.0.0.1:3000").await.unwrap();
     println!("Listening on http://127.0.0.1:3000");

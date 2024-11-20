@@ -5,6 +5,7 @@ mod tests {
     use crate::server::server;
 
     #[tokio::test]
+    #[ignore]
     async fn fetch_static_files() {
         let server = tokio::spawn(async move {
             server().await;

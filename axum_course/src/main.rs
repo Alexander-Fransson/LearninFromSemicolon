@@ -4,6 +4,9 @@ mod static_routes;
 mod server_test;
 mod server;
 mod models;
+mod login_api;
+
+pub use crate::login_api::errors::{Error, Result};
 
 #[tokio::main]
 async fn main() {

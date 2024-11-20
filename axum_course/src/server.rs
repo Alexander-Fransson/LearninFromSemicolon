@@ -3,12 +3,15 @@ use axum::response::Html;
 use axum::Router;
 use tokio::net::TcpListener;
 use axum::routing::get;
+use crate::login_api;
 use crate::models::HelloParams;
 use crate::static_routes::routes::routes_static;
 use axum::response::IntoResponse;
+use login_api::web::routes_login::routes_login;
 
 pub async fn server() {
     let router = Router::new()
+    .merge(routes_login())
     .merge(basic_routes())
     .fallback_service(routes_static());
 

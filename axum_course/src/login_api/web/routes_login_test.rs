@@ -2,6 +2,8 @@
 mod tests {
     use crate::server;
     use tokio::time::Duration;
+    use crate::login_api::web::AUTH_TOKEN;
+
 
     #[tokio::test]
     async fn test_api_login() {
@@ -21,6 +23,12 @@ mod tests {
         println!("res: {:#?}", res);
 
         assert_eq!(res.status(), 200);
+
+        let cookies = res.cookies();
+        let cookie_exhists = cookies.into_iter().any(|cookie| cookie.name() == AUTH_TOKEN);
+
+        assert!(cookie_exhists);
+
 
         let client = reqwest::Client::new();
         let res = client.post("http://127.0.0.1:3000/api/login")

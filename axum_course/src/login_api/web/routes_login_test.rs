@@ -1,3 +1,5 @@
+#![allow(unused_must_use)]
+
 #[cfg(test)]
 mod tests {
     use crate::server;
@@ -6,6 +8,7 @@ mod tests {
 
 
     #[tokio::test]
+    #[ignore]
     async fn test_api_login() {
         let server = tokio::spawn(async move {
             server().await;

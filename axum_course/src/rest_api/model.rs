@@ -7,7 +7,7 @@ use std::sync::{Arc, Mutex};
 
 // rigion -- ticket types
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Ticket {
     pub id: i32,
     pub title: String,

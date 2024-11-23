@@ -1,6 +1,6 @@
 use axum::extract::{Query, Path};
 use axum::response::Html;
-use axum::Router;
+use axum::{middleware, Router};
 use tokio::net::TcpListener;
 use axum::routing::get;
 use crate::login_api;
@@ -8,6 +8,7 @@ use crate::models::HelloParams;
 use crate::rest_api::model::ModelController;
 use crate::rest_api::routes_tickets::routes_tickets;
 use crate::static_routes::routes::routes_static;
+use crate::auth_middleware::mw_auth::mw_require_auth;
 use axum::response::IntoResponse;
 use login_api::web::routes_login::routes_login;
 use axum::response::Response;
@@ -17,10 +18,13 @@ use tower_cookies::CookieManagerLayer;
 pub async fn server() -> Result<(), Box<dyn std::error::Error>> {
     let mc = ModelController::new().await?;
 
+    let routes_apis = routes_tickets(mc.clone()) // the route layer ensures that the middleware only applies for this route 
+    .route_layer(middleware::from_fn(mw_require_auth));
+
     let router = Router::new()
     .merge(routes_login())
     .merge(basic_routes())
-    .nest("/api", routes_tickets(mc.clone()))
+    .nest("/api", routes_apis)
     .layer(map_response(main_response_mapper))
     .layer(CookieManagerLayer::new()) // layers get executed from bottom to top so if you want cookies they have to be below where you want them
     .fallback_service(routes_static());

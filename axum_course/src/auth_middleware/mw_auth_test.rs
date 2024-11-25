@@ -25,6 +25,7 @@ mod tests {
 
         let client = reqwest::Client::new();
         let res = client.get("http://127.0.0.1:3000/api/tickets")
+        .header("cookie", "auth-token=0afbkajfbjabf")
         .send()
         .await
         .unwrap();

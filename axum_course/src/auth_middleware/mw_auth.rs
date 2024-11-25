@@ -15,9 +15,11 @@ pub async fn mw_require_auth(
     req: Request<Body>, 
     next: Next
 ) -> Result<Response> {
+    // print cookies argument
+    println!("cookies: {:#?}", cookies);
 
     let auth_token = cookies.get(AUTH_TOKEN).map(|c| c.value().to_string());
-
+    
     println!("auth_token: {:#?}", auth_token);
 
     auth_token.ok_or(Error::AuthFailNoAuthTokenCookie)?;

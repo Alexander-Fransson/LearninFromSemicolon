@@ -4,6 +4,7 @@
 mod tests {
     use crate::{rest_api::model::Ticket, server};
     use tokio::time::Duration;
+    use reqwest;
 
     #[tokio::test]
     //#[ignore]
@@ -24,13 +25,10 @@ mod tests {
         assert_eq!(res.status(), 200);
 
         let cookies = res.cookies();
-        //println!("present cookie: {:?}", cookies.clone().into_iter().next().unwrap().value());
+        let auth_token = cookies.into_iter().next().unwrap();
 
-        // does not work for some reason, how do I pass cookies to the
-
-        let post_client = reqwest::Client::new();
-        let post_res = post_client.post("http://127.0.0.1:3000/api/tickets")
-        .header("set-cookie", format!("auth_token={}", cookies.into_iter().next().unwrap().value()))
+        let post_res = client.post("http://127.0.0.1:3000/api/tickets")
+        .header("cookie", format!("{}={}","auth-token", &auth_token.value()))
         .json(&serde_json::json!({"title": "test"}))
         .send()
         .await
@@ -38,28 +36,16 @@ mod tests {
 
         assert_eq!(post_res.status(), 200);
 
-        // let client = reqwest::Client::new();
-        // let res = client.get("http://127.0.0.1:3000/api/tickets")
-        // .send()
-        // .await
-        // .unwrap();
+        let ticket = post_res.text().await.unwrap();
+        let ticket_id = serde_json::from_str::<Ticket>(&ticket).unwrap().id;
 
-        // assert_eq!(res.status(), 200);
+        let delete_res = client.delete(format!("http://127.0.0.1:3000/api/tickets/{}", ticket_id))
+        .header("cookie", format!("{}={}","auth-token", &auth_token.value()))
+        .send()
+        .await
+        .unwrap();
 
-        // // geting the id of the ticket
-        // let content = res.text().await.unwrap();
-
-        // // etracting the id from vector string
-        // let vector_string: Vec<Ticket> = serde_json::from_str(&content).unwrap();
-        // let id = vector_string[0].id;
-
-        // let delete_client = reqwest::Client::new();
-        // let delete_res = delete_client.delete(format!("http://127.0.0.1:3000/api/tickets/{}", id))
-        // .send()
-        // .await
-        // .unwrap();
-
-        // assert_eq!(delete_res.status(), 200);
+        assert_eq!(delete_res.status(), 200);
 
         server.abort();
     }

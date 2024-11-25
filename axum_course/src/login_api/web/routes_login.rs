@@ -13,8 +13,6 @@ pub fn routes_login() -> Router {
 async fn api_login(cookies: Cookies, payload: Json<LoginPayload>) -> Result<Json<Value>> {
     println!("->> {:<12} - api_login", "HANDLER");
 
-    println!("payload: {:#?}", payload);
-
     // todo implement real db auth logic
     if payload.username != "test" || payload.pwd != "test" {
         return Err(Error::LoginFail);

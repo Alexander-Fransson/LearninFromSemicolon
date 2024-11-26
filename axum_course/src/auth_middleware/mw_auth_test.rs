@@ -6,7 +6,7 @@ mod tests {
     use tokio::time::Duration;
 
     #[tokio::test]
-    #[ignore]
+    //#[ignore]
     async fn test_tickets_unable_to_fetch_if_not_authenticated() {
         let server = tokio::spawn(async move {
             server().await;

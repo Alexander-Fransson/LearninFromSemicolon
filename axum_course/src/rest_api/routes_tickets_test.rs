@@ -7,7 +7,7 @@ mod tests {
     use reqwest;
 
     #[tokio::test]
-    #[ignore]
+    //#[ignore]
     async fn test_fetch_tickets() {
         let server = tokio::spawn(async move {
             server().await;

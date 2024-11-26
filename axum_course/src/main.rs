@@ -9,6 +9,7 @@ mod models;
 mod login_api;
 mod rest_api;
 mod auth_middleware;
+mod ctx;
 
 pub use crate::login_api::errors::{Error, Result};
 

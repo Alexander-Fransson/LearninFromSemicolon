@@ -1,11 +1,13 @@
 use axum::extract::{Query, Path};
 use axum::response::Html;
-use axum::{middleware, Router};
+use axum::{middleware, Json, Router};
+use serde_json::json;
 use tokio::net::TcpListener;
 use axum::routing::get;
 use crate::login_api;
 use crate::models::HelloParams;
 use crate::rest_api::model::ModelController;
+use crate::login_api::errors::Error;
 use crate::rest_api::routes_tickets::routes_tickets;
 use crate::static_routes::routes::routes_static;
 use crate::auth_middleware::mw_auth::{mw_require_auth, mw_ctx_resolver};
@@ -14,6 +16,8 @@ use login_api::web::routes_login::routes_login;
 use axum::response::Response;
 use axum::middleware::{map_response, from_fn_with_state};
 use tower_cookies::CookieManagerLayer;
+use uuid::Uuid;
+
 
 pub async fn server() -> Result<(), Box<dyn std::error::Error>> {
     let mc = ModelController::new().await?;
@@ -43,8 +47,27 @@ pub async fn server() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 async fn main_response_mapper(res: Response) -> Response {
-    println!("->> {:<12} - main_response_mapper", "RES_MAPPER");    
-    res
+    println!("->> {:<12} - main_response_mapper", "RES_MAPPER");
+    let uuid = Uuid::new_v4();
+    let service_error = res.extensions().get::<Error>().clone();
+    let client_status_and_error = service_error.map(|se| se.client_status_and_error());
+    let error_response = client_status_and_error
+    .as_ref()
+    .map(|(status_code, client_error)| {
+        let client_error_body =json!({
+        "error": {
+            "type": client_error.as_ref(),
+            "uuid": uuid.to_string()
+        }});
+
+        println!(" --> client_error_body: {}", client_error_body);
+        (*status_code, Json(client_error_body)).into_response()
+    });
+
+    // todo: build server log line
+    println!("  --> server log line {} service error {service_error:?}", uuid);
+
+    error_response.unwrap_or(res)
 }
 
 fn basic_routes() -> Router {

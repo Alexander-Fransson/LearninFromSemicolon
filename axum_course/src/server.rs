@@ -8,11 +8,11 @@ use crate::models::HelloParams;
 use crate::rest_api::model::ModelController;
 use crate::rest_api::routes_tickets::routes_tickets;
 use crate::static_routes::routes::routes_static;
-use crate::auth_middleware::mw_auth::mw_require_auth;
+use crate::auth_middleware::mw_auth::{mw_require_auth, mw_ctx_resolver};
 use axum::response::IntoResponse;
 use login_api::web::routes_login::routes_login;
 use axum::response::Response;
-use axum::middleware::map_response;
+use axum::middleware::{map_response, from_fn_with_state};
 use tower_cookies::CookieManagerLayer;
 
 pub async fn server() -> Result<(), Box<dyn std::error::Error>> {
@@ -26,6 +26,11 @@ pub async fn server() -> Result<(), Box<dyn std::error::Error>> {
     .merge(basic_routes())
     .nest("/api", routes_apis)
     .layer(map_response(main_response_mapper))
+    .layer(from_fn_with_state(
+        mc.clone(),
+        mw_ctx_resolver
+
+    ))
     .layer(CookieManagerLayer::new()) // layers get executed from bottom to top so if you want cookies they have to be below where you want them
     .fallback_service(routes_static());
 

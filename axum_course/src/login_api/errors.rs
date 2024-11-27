@@ -3,12 +3,13 @@ use axum::http::StatusCode;
 
 pub type Result<T> = core::result::Result<T, Error>;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Error {
     LoginFail,
     TicketDeleteFailIdNotFound {id: i32},
     AuthFailNoAuthTokenCookie,
-    AuthFailTokenWrongFormat
+    AuthFailTokenWrongFormat,
+    AuthFailCtxNotInRequestExtension
 }
 
 impl IntoResponse for Error {

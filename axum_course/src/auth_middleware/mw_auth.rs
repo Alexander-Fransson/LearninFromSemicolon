@@ -3,9 +3,8 @@ use axum::http::request::Parts;
 use axum::response::Response;
 use axum::middleware::Next;
 use axum::body::Body;
-use axum::RequestPartsExt;
 use lazy_regex::regex_captures;
-use tower_cookies::Cookies;
+use tower_cookies::{Cookie, Cookies};
 use crate::ctx::Ctx;
 use async_trait::async_trait;
 
@@ -28,6 +27,35 @@ pub async fn mw_require_auth(
 }
 
 
+pub async fn mw_ctx_resolver(
+    cookies: Cookies,
+    mut req: Request<Body>,
+    next: Next
+) -> Result<Response> {
+
+    println!("->> {:<12} - mw_ctx_resolver", "MIDDLEWARE");
+
+    let auth_token = cookies.get(AUTH_TOKEN).map(|c| c.value().to_string());
+
+    let result_ctx = match auth_token
+    .ok_or(Error::AuthFailNoAuthTokenCookie)
+    .and_then(parse_token) {
+        Ok((id, _exp, _sign)) => {
+            Ok(Ctx::new(id))
+        }
+        Err(e) => Err(e)
+    };
+
+    if result_ctx.is_err() && !matches!(result_ctx, Err(Error::AuthFailNoAuthTokenCookie)) {
+        cookies.remove(Cookie::from(AUTH_TOKEN));
+    }
+
+    // store ctx result in request extension
+    req.extensions_mut().insert(result_ctx);
+
+    Ok(next.run(req).await)
+}
+
 // region, ctx extractor
 
 // extractor allows us to parse the request and we can use it in all the routes
@@ -38,15 +66,11 @@ impl<S: Send + Sync> FromRequestParts<S> for Ctx {
     async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self> {
         println!("->> {:<12} - Ctx", "EXTRACTOR");
 
-        let cookies = parts.extract::<Cookies>().await.unwrap();
-        let auth_token = cookies.get(AUTH_TOKEN).map(|c| c.value().to_string());
-
-        //parse token
-        let (id, _exp, _sign) = auth_token
-        .ok_or(Error::AuthFailNoAuthTokenCookie)
-        .and_then(parse_token)?;
-
-        Ok(Ctx::new(id))
+        parts
+        .extensions
+        .get::<Result<Ctx>>()
+        .ok_or(Error::AuthFailCtxNotInRequestExtension)?
+        .clone()
     }
 }
 

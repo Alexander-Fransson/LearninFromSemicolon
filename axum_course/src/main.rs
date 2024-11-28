@@ -9,9 +9,10 @@ mod models;
 mod login_api;
 mod rest_api;
 mod auth_middleware;
+mod server_log_line;
 mod ctx;
 
-pub use crate::login_api::errors::{Error, Result};
+pub use crate::login_api::errors::{Error, Result, ClientError};
 
 #[tokio::main]
 async fn main() {

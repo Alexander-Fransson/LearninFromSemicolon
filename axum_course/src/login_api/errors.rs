@@ -1,11 +1,13 @@
 use axum::response::{IntoResponse, Response};
 use axum::http::StatusCode;
+use serde::Serialize;
 
 // Server error
 
 pub type Result<T> = core::result::Result<T, Error>;
 
-#[derive(Debug, Clone, strum_macros::AsRefStr)]
+#[derive(Serialize, Debug, Clone, strum_macros::AsRefStr)]
+#[serde(tag="type", content="error")]
 pub enum Error {
     LoginFail,
     TicketDeleteFailIdNotFound {id: i32},

@@ -1,6 +1,7 @@
 use axum::extract::{Query, Path};
 use axum::response::Html;
 use axum::{middleware, Json, Router};
+use reqwest::Method;
 use serde_json::json;
 use tokio::net::TcpListener;
 use axum::routing::get;
@@ -8,7 +9,9 @@ use crate::login_api;
 use crate::models::HelloParams;
 use crate::rest_api::model::ModelController;
 use crate::login_api::errors::Error;
+use crate::ctx::Ctx;
 use crate::rest_api::routes_tickets::routes_tickets;
+use crate::server_log_line::log::log_request;
 use crate::static_routes::routes::routes_static;
 use crate::auth_middleware::mw_auth::{mw_require_auth, mw_ctx_resolver};
 use axum::response::IntoResponse;
@@ -17,7 +20,7 @@ use axum::response::Response;
 use axum::middleware::{map_response, from_fn_with_state};
 use tower_cookies::CookieManagerLayer;
 use uuid::Uuid;
-
+use axum::http::Uri;
 
 pub async fn server() -> Result<(), Box<dyn std::error::Error>> {
     let mc = ModelController::new().await?;
@@ -46,7 +49,13 @@ pub async fn server() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-async fn main_response_mapper(res: Response) -> Response {
+async fn main_response_mapper(
+    ctx: Option<Ctx>,
+    uri: Uri,
+    req_method: Method,
+    res: Response
+) -> Response {
+    
     println!("->> {:<12} - main_response_mapper", "RES_MAPPER");
     let uuid = Uuid::new_v4();
     let service_error = res.extensions().get::<Error>().clone();
@@ -65,7 +74,8 @@ async fn main_response_mapper(res: Response) -> Response {
     });
 
     // todo: build server log line
-    println!("  --> server log line {} service error {service_error:?}", uuid);
+    let client_error = client_status_and_error.unzip().1;
+    log_request(uuid, req_method, uri, ctx, service_error, client_error);
 
     error_response.unwrap_or(res)
 }

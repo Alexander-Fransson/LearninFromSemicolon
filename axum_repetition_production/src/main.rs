@@ -1,7 +1,12 @@
 #![allow(dead_code)]
 
-use axum::Router;
+use axum::{middleware, response::Response, Router};
 use web::routes_basic::routes_basic;
+use web::routes_static::routes_static;
+use web::routes_login::routes_login;
+use tower_cookies::CookieManagerLayer;
+
+pub use self::error::{Error, Result}; // so you can get if from crate
 
 mod ctx;
 mod log;
@@ -15,9 +20,29 @@ async fn main() {
 
 }
 
+async fn server_3() {
+    let routes_all = Router::new()
+    .merge(routes_basic())
+    .merge(routes_login())
+    .layer(middleware::map_response(main_response_mapper))
+    .layer(CookieManagerLayer::new())
+    .fallback_service(routes_static()); 
+    let listerner = tokio::net::TcpListener::bind("127.0.0.1:3002")
+    .await
+    .unwrap();
+
+    axum::serve(listerner, routes_all).await.unwrap();
+}
+
+async fn main_response_mapper(res: Response) -> Response {
+    res
+}
+
 async fn server_2() {
     let routes_all = Router::new()
-    .merge(routes_basic());
+    .merge(routes_basic())
+    .merge(routes_login())
+    .fallback_service(routes_static()); // fall back to static files if no route matches
 
     let listerner = tokio::net::TcpListener::bind("127.0.0.1:3001")
     .await

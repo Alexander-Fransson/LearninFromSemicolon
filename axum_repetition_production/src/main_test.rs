@@ -5,12 +5,52 @@ pub mod tests {
         server_1,
         server_2, 
         server_3,
-        server_4
+        server_4, 
+        server_5
     };
     use tokio::time::{Duration, sleep};
     use reqwest::Client;
     use crate::web::AUTH_TOKEN;
     use crate::model::ticket::Ticket;
+
+    #[tokio::test]
+    async fn test_server_5() {
+        let server =tokio::spawn(async move {
+            server_5().await.unwrap();
+        });
+
+        sleep(Duration::from_millis(100)).await;
+
+        let client = Client::new();
+
+        let failed_res = client.get("http://127.0.0.1:3004/api/tickets")
+        .send()
+        .await
+        .unwrap();
+
+        assert_eq!(failed_res.status(), 500);
+
+        let login_res = client.post("http://127.0.0.1:3004/api/login/v2")
+        .json(&serde_json::json!({"username": "test", "password": "test"})) 
+        .send()
+        .await
+        .unwrap();
+
+        assert!(login_res.status().is_success());
+
+        let cookies = login_res.cookies();
+        let auth_token = cookies.into_iter().next().unwrap();
+
+        let success_res = client.get("http://127.0.0.1:3004/api/tickets")
+        .header("cookie", format!("{}={}", AUTH_TOKEN, auth_token.value()))
+        .send()
+        .await
+        .unwrap();
+
+        assert!(success_res.status().is_success());
+
+        server.abort();
+    }
 
     #[tokio::test]
     async fn test_server_4() {

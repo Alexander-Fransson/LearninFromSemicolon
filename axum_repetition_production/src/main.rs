@@ -1,7 +1,8 @@
 #![allow(dead_code)]
 
 use axum::{middleware, response::Response, Router};
-use web::routes_basic::routes_basic;
+use model::ticket::ModelController;
+use web::{routes_basic::routes_basic, routes_tickets::routes_tickets};
 use web::routes_static::routes_static;
 use web::routes_login::routes_login;
 use tower_cookies::CookieManagerLayer;
@@ -18,6 +19,26 @@ mod main_test;
 #[tokio::main]
 async fn main() {
 
+}
+
+async fn server_4() -> Result<()> {
+
+    let mc = ModelController::new().await?;
+
+    let routes_all = Router::new()
+    .merge(routes_basic())
+    .merge(routes_login())
+    .nest("/api", routes_tickets(mc.clone()))
+    .layer(middleware::map_response(main_response_mapper))
+    .layer(CookieManagerLayer::new())
+    .fallback_service(routes_static()); 
+    let listerner = tokio::net::TcpListener::bind("127.0.0.1:3003")
+    .await
+    .unwrap();
+
+    axum::serve(listerner, routes_all).await.unwrap();
+
+    Ok(())
 }
 
 async fn server_3() {

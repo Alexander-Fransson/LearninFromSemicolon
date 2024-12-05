@@ -4,11 +4,56 @@ pub mod tests {
     use crate::{
         server_1,
         server_2, 
-        server_3
+        server_3,
+        server_4
     };
     use tokio::time::{Duration, sleep};
     use reqwest::Client;
     use crate::web::AUTH_TOKEN;
+    use crate::model::ticket::Ticket;
+
+    #[tokio::test]
+    async fn test_server_4() {
+
+        let server =tokio::spawn(async move {
+            server_4().await.unwrap();
+        });
+
+        sleep(Duration::from_millis(100)).await;
+
+        let client = Client::new();
+
+        let create_req = client.post("http://127.0.0.1:3003/api/tickets")
+        .json(&serde_json::json!({"title": "test"}))
+        .send()
+        .await
+        .unwrap();
+
+        assert!(create_req.status().is_success());
+
+        let ticket = create_req.text().await.unwrap();
+        let ticket_id = serde_json::from_str::<Ticket>(&ticket).unwrap().id;
+
+        let list_req = client.get("http://127.0.0.1:3003/api/tickets")
+        .send()
+        .await
+        .unwrap();
+
+        assert!(list_req.status().is_success());
+        let tickets_text_list = list_req.text().await.unwrap();
+        let tickets_list = serde_json::from_str::<Vec<Ticket>>(&tickets_text_list).unwrap();
+        let ticket_exists = tickets_list.iter().any(|ticket| ticket.id == ticket_id);
+        assert!(ticket_exists);
+
+        let delete_req = client.delete(format!("http://127.0.0.1:3003/api/tickets/{}", ticket_id))
+        .send()
+        .await
+        .unwrap();
+
+        assert!(delete_req.status().is_success());        
+
+        server.abort();
+    }
 
     #[tokio::test]
     async fn test_server_3() {

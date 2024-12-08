@@ -22,6 +22,14 @@ use tower_cookies::CookieManagerLayer;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+
+	server_0().await;
+
+	Ok(())
+}
+
+async fn server_0() -> Result<()> {
+
 	// Initialize ModelManager.
 	let mm = ModelManager::new().await?;
 
@@ -38,13 +46,12 @@ async fn main() -> Result<()> {
 		.fallback_service(routes_static::serve_dir());
 
 	// region:    --- Start Server
-	let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
-	println!("->> {:<12} - {addr}\n", "LISTENING");
-	axum::Server::bind(&addr)
-		.serve(routes_all.into_make_service())
-		.await
-		.unwrap();
-	// endregion: --- Start Server
+
+	let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")
+	.await
+	.unwrap();
+
+	println!("Listening on http://127.0.0.1:3000");
 
 	Ok(())
 }

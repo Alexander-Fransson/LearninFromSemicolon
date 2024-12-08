@@ -58,7 +58,7 @@ pub mod tests {
         .await
         .unwrap();
 
-        assert_eq!(failed_res.status(), 500);
+        assert_eq!(failed_res.status(), 401);
 
         let login_res = client.post("http://127.0.0.1:3004/api/login/v2")
         .json(&serde_json::json!({"username": "test", "password": "test"})) 

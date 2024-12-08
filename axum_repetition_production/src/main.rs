@@ -1,8 +1,12 @@
 #![allow(dead_code)]
 #![allow(unused_imports)]
+#![allow(unused_must_use)]
 
 use axum::Json;
+use axum::http::{Method, Uri};
 use axum::{middleware, response::Response, Router};
+use ctx::extractor::Ctx;
+use log::request_log_line::log_request;
 use model::ticket::ModelController;
 use serde_json::json;
 use uuid::Uuid;
@@ -17,7 +21,7 @@ use tower_cookies::CookieManagerLayer;
 use middleware::from_fn;
 use axum::response::IntoResponse;
 
-pub use self::error::{Error, Result}; // so you can get if from crate
+pub use self::error::{Error, Result, ClientError}; // so you can get if from crate
 
 mod ctx;
 mod log;
@@ -43,7 +47,7 @@ async fn server_7() -> Result<()> {
     .merge(routes_basic())
     .merge(routes_login())
     .nest("/api", routes_api_with_mw)
-    .layer(middleware::map_response(main_response_mapper))
+    .layer(middleware::map_response(main_response_mapper_2))
     .layer(middleware::from_fn_with_state(
         mc.clone(), 
         mw_ctx_resolver    
@@ -57,6 +61,35 @@ async fn server_7() -> Result<()> {
     axum::serve(listerner, routes_all).await.unwrap();
 
     Ok(())
+}
+
+
+async fn main_response_mapper_2(
+    ctx: Option<Ctx>,
+    uri: Uri,
+    req_method: Method,
+    res: Response
+) -> Response {
+    let uuid = Uuid::new_v4();
+    let service_error = res.extensions().get::<Error>();
+    let client_status_and_error = service_error.map(|se| se.client_status_and_error());
+    let error_response = client_status_and_error
+    .as_ref()
+    .map(|(status_code, client_error)| {
+        let client_error_body =json!({
+        "error": {
+            "type": client_error.as_ref(),
+            "uuid": uuid.to_string()
+        }});
+
+        (*status_code, Json(client_error_body)).into_response()
+    });
+    
+    let client_error = client_status_and_error.unzip().1;
+    log_request(uuid, req_method, uri, ctx, service_error, client_error).await;
+
+    error_response.unwrap_or(res)
+    // could just return res if you dont want to map response and all
 }
 
 async fn server_6() -> Result<()> {

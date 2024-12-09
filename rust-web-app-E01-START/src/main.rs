@@ -2,6 +2,7 @@
 
 // region:    --- Modules
 
+mod config;
 mod ctx;
 mod error;
 mod log;
@@ -9,12 +10,14 @@ mod model;
 mod web;
 
 pub use self::error::{Error, Result};
+pub use config::config;
 
 use crate::model::ModelManager;
 use crate::web::mw_auth::mw_ctx_resolve;
 use crate::web::mw_res_map::mw_reponse_map;
 use crate::web::{routes_login, routes_static};
 use axum::{middleware, Router};
+use tracing_subscriber::EnvFilter;
 use std::net::SocketAddr;
 use tower_cookies::CookieManagerLayer;
 
@@ -29,6 +32,13 @@ async fn main() -> Result<()> {
 }
 
 async fn server_0() -> Result<()> {
+
+	// what does this do?
+	tracing_subscriber::fmt()
+	.without_time()
+	.with_target(false)
+	.with_env_filter(EnvFilter::from_default_env())
+	.init();
 
 	// Initialize ModelManager.
 	let mm = ModelManager::new().await?;
@@ -52,6 +62,8 @@ async fn server_0() -> Result<()> {
 	.unwrap();
 
 	println!("Listening on http://127.0.0.1:3000");
+
+	axum::serve(listener, routes_all).await.unwrap();
 
 	Ok(())
 }

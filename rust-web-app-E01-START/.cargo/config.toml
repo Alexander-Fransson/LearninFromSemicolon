@@ -1,0 +1,20 @@
+# Cargo config file
+# See: https://doc.rust-lang.org/cargo/reference/config.html
+
+# environment variable set for all `cargo ...` commands
+[env]
+
+# scope down tracing, to filter out external lib tracing
+RUST_LOG = "rust_web_app=debug"
+
+# --Service environment variables
+# IMPORTANT:
+#   For cargo commands only
+#   For deployed env, should be managed by container
+#   (e.g. Kubernetes)
+
+## -- ConfigMap
+
+# this will be relative  to Cargo.toml
+# in deployed images, probably use absolute path
+SERVICE_WEB_FOLDER = "web-folder/"

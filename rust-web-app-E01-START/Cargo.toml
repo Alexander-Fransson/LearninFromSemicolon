@@ -26,6 +26,9 @@ lazy-regex = "3"
 async-trait = "0.1"
 strum_macros = "0.26.4"
 
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+
 [dev-dependencies]
 anyhow = "1"
 httpc-test = "0.1.1"

@@ -29,6 +29,8 @@ strum_macros = "0.26.4"
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 
+sqlx = {version = "0.8.2", features = ["postgres", "uuid", "time", "runtime-tokio-rustls"]}
+
 [dev-dependencies]
 anyhow = "1"
 httpc-test = "0.1.1"

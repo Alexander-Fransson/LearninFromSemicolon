@@ -11,16 +11,21 @@ More info at: https://awesomeapp.dev/rust-web-app/
 
 ```sh
 # Start postgresql server docker image:
-docker run --rm --name pg -p 5432:5432  -e POSTGRES_PASSWORD=welcome  postgres:15
+docker run --rm --name pg -p 5433:5432  -e POSTGRES_PASSWORD=welcome  postgres:15
 
-# (optional) To have a psql terminal on pg. 
-# In another terminal (tab) run psql:
-docker exec -it -u postgres pg psql
+# --rm: Automatically removes the container when it's stopped.
+# --name pg: Gives the container the name "pg".
+# -p 5433:5432: Maps port 5433 on the host machine to port 5432 in the container, allowing you to access the PostgreSQL database from outside the container.
+# -e POSTGRES_PASSWORD=welcome: Sets the POSTGRES_PASSWORD environment variable to "welcome", which sets the password for the default PostgreSQL user.
+# postgres:15: Uses the official PostgreSQL 15 image from Docker Hub.
 
-# (optional) For pg to print all sql statements.
-# In psql command line started above.
-ALTER DATABASE postgres SET log_statement = 'all';
-```
+# # (optional) To have a psql terminal on pg. 
+# # In another terminal (tab) run psql:
+# docker exec -it -u postgres pg psql
+
+# # (optional) For pg to print all sql statements.
+# # In psql command line started above.
+# ALTER DATABASE postgres SET log_statement = 'all';
 
 ## Dev (REPL)
 

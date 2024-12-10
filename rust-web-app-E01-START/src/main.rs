@@ -9,6 +9,9 @@ mod log;
 mod model;
 mod web;
 
+// #[cfg(test)] // For early development.
+pub mod _dev_utils;
+
 pub use self::error::{Error, Result};
 pub use config::config;
 
@@ -39,6 +42,8 @@ async fn server_0() -> Result<()> {
 	.with_target(false)
 	.with_env_filter(EnvFilter::from_default_env())
 	.init();
+
+	_dev_utils::dev_init().await;
 
 	// Initialize ModelManager.
 	let mm = ModelManager::new().await?;

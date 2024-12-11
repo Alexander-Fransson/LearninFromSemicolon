@@ -18,9 +18,7 @@ pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
     {
         // its own scope becouse variables should not be accessed anyware else
         let root_db = new_db_pool(PG_DEV_POSTGRES_URL).await?;
-        info!("Recreating database");
         pexec(&root_db, SQL_RECREATE_DB).await?;
-        info!("Database recreated");
     }
 
     let mut paths: Vec<PathBuf> = fs::read_dir(SQL_DIR)?

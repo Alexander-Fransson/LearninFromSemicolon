@@ -1,9 +1,18 @@
 use serde::Serialize;
+use crate::model::store;
 
 pub type Result<T> = core::result::Result<T, Error>;
 
 #[derive(Debug, Serialize)]
-pub enum Error {}
+pub enum Error {
+	Store(store::Error),
+}
+
+impl From<store::Error> for Error {
+	fn from(err: store::Error) -> Self {
+		Error::Store(err)
+	}
+}
 
 // region:    --- Error Boilerplate
 impl core::fmt::Display for Error {

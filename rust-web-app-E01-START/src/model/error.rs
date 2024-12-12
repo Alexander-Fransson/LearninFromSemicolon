@@ -1,11 +1,23 @@
 use serde::Serialize;
 use crate::model::store;
+use serde_with::{serde_as, DisplayFromStr};
 
 pub type Result<T> = core::result::Result<T, Error>;
 
-#[derive(Debug, Serialize)]
+#[serde_as]
+#[derive(Debug, Serialize, )]
 pub enum Error {
 	Store(store::Error),
+	Sqlx(
+		#[serde_as(as = "DisplayFromStr")]
+		sqlx::Error
+	),
+}
+
+impl From<sqlx::Error> for Error {
+	fn from(err: sqlx::Error) -> Self {
+		Self::Sqlx(err)
+	}
 }
 
 impl From<store::Error> for Error {

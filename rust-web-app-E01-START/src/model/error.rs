@@ -12,6 +12,7 @@ pub enum Error {
 		#[serde_as(as = "DisplayFromStr")]
 		sqlx::Error
 	),
+	EntityNotFound { entity: &'static str, id: i64 },
 }
 
 impl From<sqlx::Error> for Error {

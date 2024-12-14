@@ -4,6 +4,8 @@ use tokio::sync::OnceCell;
 use tracing::info;
 
 use crate::model::ModelManager;
+use crate::model::task::{Task, TaskBmc, TaskForCreate};
+use crate::{ctx, model};
 
 /// initialize environment for local development
 /// (for early development, will be called from main)
@@ -26,4 +28,28 @@ pub async fn init_test() -> ModelManager {
     }).await;
 
     mm.clone()
+}
+
+pub async fn seed_tasks(
+    ctx: &ctx::Ctx,
+    mm: &ModelManager,
+    titles: &[&str]
+) ->model::Result<Vec<Task>> {
+    let mut tasks:Vec<Task> = Vec::new();
+
+    for title in titles {
+        let id = TaskBmc::create(
+            ctx, 
+            mm, 
+            TaskForCreate { 
+                title: title.to_string() 
+            }
+        )
+        .await?;
+
+        let task = TaskBmc::get(ctx, mm, id).await?;
+        tasks.push(task);
+    }
+
+    Ok(tasks)
 }

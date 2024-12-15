@@ -6,6 +6,7 @@
 //!    f.ex db_pool, s3 client and redis client
 //!  - model controllers implement crud and such	
 
+mod base;
 mod error;
 mod store;
 pub mod task;

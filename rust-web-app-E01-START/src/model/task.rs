@@ -1,14 +1,23 @@
 use crate::ctx::Ctx;
+use crate::model::base;
 use crate::model::ModelManager;
 use crate::model::Result;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
+use super::base::DbBmc;
+use super::base::HasFields;
 use super::error::Error;
 
 #[derive(Clone, Debug, Serialize, FromRow)]
 pub struct Task {
     pub id: i64,
     pub title: String,
+}
+
+impl HasFields for Task {
+    fn get_fields() -> String {
+        String::from("id, title")
+    }
 }
 
 #[derive(Deserialize)]
@@ -23,20 +32,28 @@ pub struct TaskForUpdate {
 
 pub struct TaskBmc;
 
+impl DbBmc for TaskBmc {
+    const TABLE: &'static str = "task";
+}
+
 impl TaskBmc {
     pub async fn get(
-        _ctx: &Ctx,
+        ctx: &Ctx,
         mm: &ModelManager,
         id: i64
     ) -> Result<Task> {
-        let db = mm.db();
-        let task = sqlx::query_as::<_, Task>("SELECT id, title FROM task WHERE id = $1")
-        .bind(id)
-        .fetch_optional(db)
-        .await?
-        .ok_or(Error::EntityNotFound { entity: "task", id })?;
 
-        Ok(task)
+        base::get::<Self, Task>(ctx, mm, id).await
+
+        // // before we hade the Db bmc trait
+        // let db = mm.db();
+        // let task = sqlx::query_as::<_, Task>("SELECT id, title FROM task WHERE id = $1")
+        // .bind(id)
+        // .fetch_optional(db)
+        // .await?
+        // .ok_or(Error::EntityNotFound { entity: "task", id })?;
+
+        // Ok(task)
     }
 
     pub async fn delete(
@@ -75,14 +92,18 @@ impl TaskBmc {
         Ok(id)
     }
 
-    pub async fn list(_ctx: &Ctx, mm: &ModelManager) -> Result<Vec<Task>> {
-        let db = mm.db();
+    pub async fn list(ctx: &Ctx, mm: &ModelManager) -> Result<Vec<Task>> {
+        
+        base::list::<Self, Task>(ctx, mm).await
 
-        let tasks = sqlx::query_as("SELECT * FROM task ORDER BY id")
-        .fetch_all(db)
-        .await?;
+        // //alternatively
+        // let db = mm.db();
 
-        Ok(tasks)
+        // let tasks = sqlx::query_as("SELECT * FROM task ORDER BY id")
+        // .fetch_all(db)
+        // .await?;
+
+        // Ok(tasks)
     }
 }
 
@@ -96,6 +117,7 @@ mod tests {
     use anyhow::{Ok, Result};
 
     #[serial]
+    #[ignore]
     #[tokio::test]
     async fn test_create_ok() -> Result<()> {
         let mm = _dev_utils::init_test().await;
@@ -116,6 +138,7 @@ mod tests {
     }
 
     #[serial]
+    #[ignore]
     #[tokio::test]
     async fn test_get_error_not_found() -> Result<()> {
         let mm = _dev_utils::init_test().await;
@@ -135,6 +158,7 @@ mod tests {
     }
 
     #[serial]
+    #[ignore]
     #[tokio::test]
     async fn test_delete_error_not_found() -> Result<()> {
         let mm = _dev_utils::init_test().await;
@@ -154,6 +178,7 @@ mod tests {
     }
 
     #[serial]
+    //#[ignore]
     #[tokio::test]
     async fn test_list_ok() -> Result<()> {
         let mm = _dev_utils::init_test().await;

@@ -11,6 +11,23 @@ pub trait DbBmc {
 
 pub trait HasFields {
     fn get_fields() -> String;
+    fn get_not_null_keys_and_values(&self) -> (Vec<String>, Vec<String>);
+}
+
+pub async fn create<MC, E>(_ctx: &Ctx, mm: &ModelManager, data: E) 
+-> Result<i64> where MC: DbBmc, E:HasFields {
+    let db = mm.db();
+
+    let (keys, values) = data.get_not_null_keys_and_values();
+    
+    let sql = format!("INSERT INTO {} ({}) VALUES ({}) RETURNING id", MC::TABLE, keys.join(","), "'".to_string() + &values.join("','") + "'");
+
+    let (id,) = sqlx::query_as::<_, (i64,)>(&sql)
+    .bind(values)
+    .fetch_one(db)
+    .await?;
+
+    Ok(id)
 }
 
 pub async fn get<MC, E>(_ctx: &Ctx, mm: &ModelManager, id:i64) 

@@ -1,3 +1,6 @@
+use std::collections::HashMap;
+use std::vec;
+
 use crate::ctx::Ctx;
 use crate::model::base;
 use crate::model::ModelManager;
@@ -18,11 +21,24 @@ impl HasFields for Task {
     fn get_fields() -> String {
         String::from("id, title")
     }
+
+    fn get_not_null_keys_and_values(&self) -> (Vec<String>, Vec<String>) {
+        (vec!["title".to_string()], vec![self.title.clone()])
+    }
 }
 
 #[derive(Deserialize)]
 pub struct TaskForCreate {
     pub title: String
+}
+impl HasFields for TaskForCreate {
+    fn get_fields() -> String {
+        String::from("id, title")
+    }
+
+    fn get_not_null_keys_and_values(&self) -> (Vec<String>, Vec<String>) {
+        (vec!["title".to_string()], vec![self.title.clone()])
+    }
 }
 
 #[derive(Deserialize)]
@@ -79,17 +95,20 @@ impl TaskBmc {
     }
 
     pub async fn create(
-        _ctx: &Ctx,
+        ctx: &Ctx,
         mm: &ModelManager,
         task_c: TaskForCreate
     ) -> Result<i64> {
-        let db = mm.db();
-        let (id,) = sqlx::query_as::<_, (i64,)>("INSERT INTO task (title) VALUES ($1) RETURNING id")
-        .bind(task_c.title)
-        .fetch_one(db)
-        .await?;
 
-        Ok(id)
+        base::create::<Self, TaskForCreate>(ctx, mm, task_c).await
+
+        // let db = mm.db();
+        // let (id,) = sqlx::query_as::<_, (i64,)>("INSERT INTO task (title) VALUES ($1) RETURNING id")
+        // .bind(task_c.title)
+        // .fetch_one(db)
+        // .await?;
+
+        // Ok(id)
     }
 
     pub async fn list(ctx: &Ctx, mm: &ModelManager) -> Result<Vec<Task>> {
@@ -117,7 +136,7 @@ mod tests {
     use anyhow::{Ok, Result};
 
     #[serial]
-    #[ignore]
+    //#[ignore]
     #[tokio::test]
     async fn test_create_ok() -> Result<()> {
         let mm = _dev_utils::init_test().await;
@@ -178,7 +197,7 @@ mod tests {
     }
 
     #[serial]
-    //#[ignore]
+    #[ignore]
     #[tokio::test]
     async fn test_list_ok() -> Result<()> {
         let mm = _dev_utils::init_test().await;

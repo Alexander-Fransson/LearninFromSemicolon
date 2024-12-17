@@ -46,6 +46,22 @@ pub struct TaskForUpdate {
     pub title: Option<String>
 }
 
+impl HasFields for TaskForUpdate {
+    fn get_fields() -> String {
+        String::from("id, title")
+    }
+
+    fn get_not_null_keys_and_values(&self) -> (Vec<String>, Vec<String>) {
+        let mut keys = Vec::new();
+        let mut values = Vec::new();
+        if let Some(title) = &self.title {
+            keys.push("title".to_string());
+            values.push(title.clone());
+        }
+        (keys, values)
+    }
+}
+
 pub struct TaskBmc;
 
 impl DbBmc for TaskBmc {
@@ -72,26 +88,21 @@ impl TaskBmc {
         // Ok(task)
     }
 
+    pub async fn update(
+        ctx: &Ctx,
+        mm: &ModelManager,
+        id: i64,
+        data: TaskForUpdate
+    ) -> Result<()> {
+        base::update::<Self, TaskForUpdate>(ctx, mm, id, data).await
+    }
+
     pub async fn delete(
-        _ctx: &Ctx,
+        ctx: &Ctx,
         mm: &ModelManager,
         id: i64
     ) -> Result<()> {
-        let db = mm.db();
-        
-        let count = sqlx::query("DELETE FROM task WHERE id = $1")
-        .bind(id)
-        .execute(db)
-        .await?
-        .rows_affected();
-
-        println!("count: {}", count);
-
-        if count == 0 {
-            return Err(Error::EntityNotFound { entity: "task", id });
-        }
-
-        Ok(())
+        base::delete::<Self>(ctx, mm, id).await
     }
 
     pub async fn create(
@@ -136,7 +147,7 @@ mod tests {
     use anyhow::{Ok, Result};
 
     #[serial]
-    //#[ignore]
+    #[ignore]
     #[tokio::test]
     async fn test_create_ok() -> Result<()> {
         let mm = _dev_utils::init_test().await;
@@ -150,6 +161,35 @@ mod tests {
 
         let task = TaskBmc::get(&ctx, &mm, id).await?;
         assert_eq!(task.title, fx_title);
+
+        TaskBmc::delete(&ctx, &mm, id).await?;
+
+        Ok(())
+    }
+
+    #[serial]
+    //#[ignore]
+    #[tokio::test]
+    async fn test_update_ok() -> Result<()> {
+        let mm = _dev_utils::init_test().await;
+        let ctx = Ctx::root_ctx();
+        let fx_title = "test ok title";
+
+        let task_c = TaskForCreate {
+            title: fx_title.to_string()
+        };
+        let id = TaskBmc::create(&ctx, &mm, task_c).await?;
+
+        let task = TaskBmc::get(&ctx, &mm, id).await?;
+        assert_eq!(task.title, fx_title);
+
+        let task_u = TaskForUpdate {
+            title: Some("updated title".to_string())
+        };
+        TaskBmc::update(&ctx, &mm, id, task_u).await?;
+
+        let task = TaskBmc::get(&ctx, &mm, id).await?;
+        assert_eq!(task.title, "updated title");
 
         TaskBmc::delete(&ctx, &mm, id).await?;
 

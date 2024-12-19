@@ -1,0 +1,11 @@
+[package]
+name = "reflective-derive"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+quote = "1.0.37" # does the reverse of syn
+syn = "2.0.90" # takes token steam and creates abstract syntax tree with metadate for each token
+
+[lib]
+proc-macro = true # define project as proc macro

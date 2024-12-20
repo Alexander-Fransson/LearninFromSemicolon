@@ -9,7 +9,7 @@ pub trait Reflective {
 #[derive(GetName)]
 #[allow(dead_code)]
 struct Boo {
-    a: i32,
+    pub a: i32,
     b: bool,
     c: String
 }

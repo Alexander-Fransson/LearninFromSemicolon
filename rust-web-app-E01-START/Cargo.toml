@@ -11,6 +11,8 @@ repository = "https://github.com/awesomeapp-dev/rust-web-app"
 
 
 [dependencies]
+fields_macro = {path = "./fields_macro" }
+
 tokio = { version = "1", features = ["full"] }
 # -- Json
 serde = { version = "1.0.216", features = ["derive"] }

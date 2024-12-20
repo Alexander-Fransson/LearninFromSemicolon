@@ -6,17 +6,14 @@ use serde::{Deserialize, Serialize};
 use sqlx::postgres::PgRow;
 use sqlx::FromRow;
 use uuid::Uuid;
+use fields_macro::Fields;
 
-use super::base::HasFields;
-
-
-pub trait HasFiledsForUser {
-
+pub trait Fields {
+	fn struct_name(&self) -> &'static str;
+	fn fields(&self) -> Vec<&'static str>;
 }
 
-
-
-#[derive(Clone, Debug, Serialize, FromRow, HasFiledsForUser)]
+#[derive(Clone, Debug, Serialize, FromRow, Fields)]
 pub struct User {
     pub id: i64,
     pub username: String,
@@ -33,7 +30,7 @@ struct UserForInsert {
     pub username: String,
 }
 
-#[derive(FromRow, Clone, Debug, HasFiledsForUser)]
+#[derive(FromRow, Clone, Debug, Fields)]
 pub struct UserForLogin {
     pub id: i64,
     pub username: String,
@@ -42,14 +39,14 @@ pub struct UserForLogin {
     pub pwd_token_salt: Uuid,
 }
 
-#[derive(HasFiledsForUser)]
+#[derive(FromRow, Fields)]
 pub struct UserForAuth {
     pub id: i64,
     pub username: String,    
     pub pwd_salt: Uuid,
 }
 
-pub trait UserBy: for <'r> FromRow<'r, PgRow> + Unpin + Send + HasFiledsForUser {}
+pub trait UserBy: for <'r> FromRow<'r, PgRow> + Unpin + Send + Fields {}
 
 impl UserBy for User {}
 impl UserBy for UserForLogin {} 

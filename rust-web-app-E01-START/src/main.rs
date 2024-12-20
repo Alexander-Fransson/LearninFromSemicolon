@@ -13,6 +13,13 @@ mod web;
 pub mod _dev_utils;
 
 pub use self::error::{Error, Result};
+// pub use fields_macro::Fields;
+
+// pub trait Fields {
+// 	fn struct_name(&self) -> &'static str;
+// 	fn fields(&self) -> Vec<&'static str>;
+// }
+
 pub use config::config;
 
 use crate::model::ModelManager;

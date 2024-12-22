@@ -16,7 +16,7 @@ fields_macro = {path = "./fields_macro" }
 tokio = { version = "1", features = ["full"] }
 # -- Json
 serde = { version = "1.0.216", features = ["derive"] }
-serde_json = "1"
+serde_json = "1.0.134"
 serde_with = "3"
 # -- Web
 axum = "0.7.9"
@@ -33,7 +33,13 @@ tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 
 sqlx = {version = "0.8.2", features = ["postgres", "uuid", "time", "runtime-tokio-rustls"]}
 
+# -- crypto
+rand = "0.8.5"
+hmac = "0.12.1"
+sha2 = "0.10.8"
+base64-url = "3.0.0"
+
 [dev-dependencies]
-anyhow = "1"
+anyhow = "1.0.95"
 httpc-test = "0.1.1"
 serial_test = "3.2.0" # to make tests to not run in parallel

@@ -1,6 +1,5 @@
 pub use reflective_derive::GetName;
 
-
 pub trait Reflective {
     fn name(&self) -> &'static str;
     fn fields(&self) -> Vec<&'static str>;

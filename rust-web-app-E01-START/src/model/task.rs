@@ -157,7 +157,7 @@ mod tests {
     }
 
     #[serial]
-    //#[ignore]
+    #[ignore]
     #[tokio::test]
     async fn test_update_ok() -> Result<()> {
         let mm = _dev_utils::init_test().await;

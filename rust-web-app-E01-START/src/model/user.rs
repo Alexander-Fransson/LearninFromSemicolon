@@ -78,11 +78,51 @@ impl UserBy for UserForAuth {}
 pub struct UserBmc;
 
 impl DbBmc for UserBmc {
-    const TABLE: &'static str = "user";
+    const TABLE: &'static str = "\"user\"";
 }
 
 impl UserBmc {
     pub async fn get<E>(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<E> where E: UserBy {
         base::get::<Self, _>(ctx, mm, id).await
+    }
+
+    pub async fn first_by_username<E>(
+        _ctx: &Ctx, 
+        mm: &ModelManager, 
+        username: &str
+    ) -> Result<Option<E>> where E: UserBy {
+        // fetch user by username using sqlx
+        let db = mm.db();
+        let sql = format!("SELECT * FROM {} WHERE username = $1", UserBmc::TABLE);
+        let user = sqlx::query_as::<_, E>(&sql)
+        .bind(username)
+        .fetch_optional(db)
+        .await?;
+
+        Ok(user)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::_dev_utils;
+    use serial_test::serial;
+    use anyhow::{Result, Context};
+
+    //#[ignore]
+    #[serial]
+    #[tokio::test]
+    async fn test_first_ok_demo1() -> Result<()> {
+        let mm = _dev_utils::init_test().await;
+        let ctx = Ctx::root_ctx();
+        let fx_username = "demo1";
+        
+        let user: User = UserBmc::first_by_username(&ctx, &mm, fx_username)
+        .await?.context("should have user demo1")?;
+
+        assert_eq!(user.username, fx_username);
+
+        Ok(())
     }
 }

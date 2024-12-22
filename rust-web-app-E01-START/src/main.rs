@@ -13,12 +13,13 @@ mod web;
 pub mod _dev_utils;
 
 pub use self::error::{Error, Result};
-// pub use fields_macro::Fields;
+pub use fields_macro::Fields;
 
-// pub trait Fields {
-// 	fn struct_name(&self) -> &'static str;
-// 	fn fields(&self) -> Vec<&'static str>;
-// }
+pub trait Fields {
+	fn struct_name(&self) -> &'static str;
+	fn fields(&self) -> Vec<&'static str>;
+	fn get_fields() -> Vec<&'static str>;
+}
 
 pub use config::config;
 

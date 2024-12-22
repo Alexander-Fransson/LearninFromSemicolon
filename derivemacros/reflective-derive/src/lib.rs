@@ -21,7 +21,6 @@ fn implement_reflective_trait(ast: DeriveInput) -> TokenStream {
     };
     let filed_idents_string: Vec<String> = fields.iter().map(|f| f.to_string()).collect::<Vec<String>>();
 
-
     // generate impl
     quote::quote! {
         impl Reflective for #struct_name {

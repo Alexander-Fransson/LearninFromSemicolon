@@ -10,47 +10,36 @@ use sqlx::FromRow;
 use super::base::DbBmc;
 use super::base::HasFields;
 use super::error::Error;
+use crate::Fields;
 
-#[derive(Clone, Debug, Serialize, FromRow)]
+#[derive(Clone, Debug, Serialize, FromRow, Fields)]
 pub struct Task {
     pub id: i64,
     pub title: String,
 }
 
 impl HasFields for Task {
-    fn get_fields() -> String {
-        String::from("id, title")
-    }
-
     fn get_not_null_keys_and_values(&self) -> (Vec<String>, Vec<String>) {
         (vec!["title".to_string()], vec![self.title.clone()])
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Fields)]
 pub struct TaskForCreate {
     pub title: String
 }
 impl HasFields for TaskForCreate {
-    fn get_fields() -> String {
-        String::from("id, title")
-    }
-
     fn get_not_null_keys_and_values(&self) -> (Vec<String>, Vec<String>) {
         (vec!["title".to_string()], vec![self.title.clone()])
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Fields)]
 pub struct TaskForUpdate {
     pub title: Option<String>
 }
 
 impl HasFields for TaskForUpdate {
-    fn get_fields() -> String {
-        String::from("id, title")
-    }
-
     fn get_not_null_keys_and_values(&self) -> (Vec<String>, Vec<String>) {
         let mut keys = Vec::new();
         let mut values = Vec::new();

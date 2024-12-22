@@ -10,6 +10,7 @@ fn implement_fields_trait(ast: DeriveInput) -> TokenStream {
         syn::Data::Enum(_) => panic!("Enums are not supported by this macro"),
         syn::Data::Union(_) => panic!("Unions are not supported by this macro")
     };
+
     let filed_idents_string: Vec<String> = fields.iter().map(|f| f.to_string()).collect::<Vec<String>>();
 
     quote::quote! {
@@ -19,6 +20,10 @@ fn implement_fields_trait(ast: DeriveInput) -> TokenStream {
             }
 
             fn fields(&self) -> Vec<&'static str> {
+                vec![#(#filed_idents_string),*]
+            }
+
+            fn get_fields() -> Vec<&'static str> {
                 vec![#(#filed_idents_string),*]
             }
         }

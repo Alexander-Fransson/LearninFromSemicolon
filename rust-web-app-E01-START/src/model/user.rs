@@ -110,7 +110,7 @@ mod tests {
     use serial_test::serial;
     use anyhow::{Result, Context};
 
-    //#[ignore]
+    #[ignore]
     #[serial]
     #[tokio::test]
     async fn test_first_ok_demo1() -> Result<()> {

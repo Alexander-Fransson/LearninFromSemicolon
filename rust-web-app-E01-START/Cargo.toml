@@ -33,7 +33,7 @@ tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 
 sqlx = {version = "0.8.2", features = ["postgres", "uuid", "time", "runtime-tokio-rustls"]}
 
-# -- crypto
+# -- cryptography
 rand = "0.8.5"
 hmac = "0.12.1"
 sha2 = "0.10.8"

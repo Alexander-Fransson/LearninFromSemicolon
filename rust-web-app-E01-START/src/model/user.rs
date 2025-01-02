@@ -1,3 +1,4 @@
+use crate::crypt::EncryptContent;
 use crate::ctx::{self, Ctx};
 use crate::model::base::{self, DbBmc};
 use crate::model::ModelManager;
@@ -8,6 +9,7 @@ use sqlx::FromRow;
 use uuid::Uuid;
 use crate::Fields;
 use super::base::HasFields;
+use crate::crypt::pwd;
 
 #[derive(Clone, Debug, Serialize, FromRow, Fields)]
 pub struct User {
@@ -37,7 +39,7 @@ struct UserForInsert {
 pub struct UserForLogin {
     pub id: i64,
     pub username: String,
-    pub password: Option<String>,
+    pub pwd: Option<String>,
     pub pwd_salt: Uuid,
     pub pwd_token_salt: Uuid,
 }
@@ -46,9 +48,9 @@ impl HasFields for UserForLogin {
         let mut keys = vec!["id".to_string(), "username".to_string(), "pwd_salt".to_string(), "pwd_token_salt".to_string()];
         let mut values = vec![self.id.to_string(), self.username.to_string()];
 
-        if let Some(password) = &self.password {
-            keys.push("password".to_string());
-            values.push(password.clone());
+        if let Some(pwd) = &self.pwd {
+            keys.push("pwd".to_string());
+            values.push(pwd.clone());
         }
 
         (keys, values)
@@ -100,6 +102,33 @@ impl UserBmc {
         .await?;
 
         Ok(user)
+    }
+
+    pub async fn update_pwd(
+        ctx: &Ctx,
+        mm: &ModelManager,
+        id: i64,
+        pwd_clear: &str
+    ) -> Result<()> {
+
+        let db = mm.db();
+
+        let user: UserForLogin = Self::get(ctx, mm, id).await?;
+
+        let pwd = pwd::encrypt_pwd(&EncryptContent {
+            content: pwd_clear.to_string(),
+            salt: user.pwd_salt.to_string(),
+        })?;
+
+        let sql = format!("UPDATE {} SET pwd = $1 WHERE id = $2", Self::TABLE);
+        
+        sqlx::query(&sql)
+        .bind(pwd.to_string())
+        .bind(id)
+        .execute(db)
+        .await?;
+
+        Ok(())
     }
 }
 

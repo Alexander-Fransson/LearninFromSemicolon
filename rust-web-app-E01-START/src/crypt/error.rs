@@ -4,7 +4,8 @@ pub type Result<T> = core::result::Result<T, Error>;
 
 #[derive(Debug, Serialize)]
 pub enum Error {
-	KeyFailHmac
+	KeyFailHmac,
+	PwdNotMatching
 }
 
 // region:    --- Error Boilerplate

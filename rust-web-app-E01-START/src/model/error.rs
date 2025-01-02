@@ -1,5 +1,5 @@
 use serde::Serialize;
-use crate::model::store;
+use crate::{crypt, model::store};
 use serde_with::{serde_as, DisplayFromStr};
 
 pub type Result<T> = core::result::Result<T, Error>;
@@ -7,12 +7,19 @@ pub type Result<T> = core::result::Result<T, Error>;
 #[serde_as]
 #[derive(Debug, Serialize, )]
 pub enum Error {
+	Crypt(crypt::Error),
 	Store(store::Error),
 	Sqlx(
 		#[serde_as(as = "DisplayFromStr")]
 		sqlx::Error
 	),
 	EntityNotFound { entity: &'static str, id: i64 },
+}
+
+impl From<crypt::Error> for Error {
+	fn from(err: crypt::Error) -> Self {
+		Self::Crypt(err)
+	}
 }
 
 impl From<sqlx::Error> for Error {

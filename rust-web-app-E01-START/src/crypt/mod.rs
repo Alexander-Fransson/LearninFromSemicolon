@@ -1,4 +1,5 @@
 mod error;
+pub mod pwd;
 
 use std::result;
 

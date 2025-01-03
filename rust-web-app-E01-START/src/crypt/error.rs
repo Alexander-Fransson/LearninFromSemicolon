@@ -13,7 +13,7 @@ pub enum Error {
 
 	TokenSignatureNotMatching,
 	TokenExpNotIso,
-	TokenExpired,
+	TokenExpired
 }
 
 // region:    --- Error Boilerplate

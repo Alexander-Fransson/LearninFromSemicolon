@@ -9,6 +9,7 @@ mod log;
 mod model;
 mod web;
 mod crypt;
+mod utils;
 
 // #[cfg(test)] // For early development.
 pub mod _dev_utils;

@@ -10,7 +10,7 @@ pub fn encrypt_pwd(enc_content: &EncryptContent) -> Result<String> {
     Ok(format!("#01#{}", enc))
 }
 
-pub fn valudate_password(enc_content: &EncryptContent, ref_pwd: &str) -> Result<()> {
+pub fn validate_password(enc_content: &EncryptContent, ref_pwd: &str) -> Result<()> {
     let key = &config().PWD_KEY;
     let pwd = encrypt_pwd(enc_content)?;
 

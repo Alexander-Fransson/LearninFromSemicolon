@@ -5,7 +5,7 @@ use serde_with::{serde_as, DisplayFromStr};
 pub type Result<T> = core::result::Result<T, Error>;
 
 #[serde_as]
-#[derive(Debug, Serialize, )]
+#[derive(Debug, Serialize)]
 pub enum Error {
 	Crypt(crypt::Error),
 	Store(store::Error),

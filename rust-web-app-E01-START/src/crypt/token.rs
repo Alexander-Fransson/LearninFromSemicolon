@@ -25,6 +25,8 @@ impl FromStr for Token {
     fn from_str(token_str: &str) -> Result<Self> {
         let parts: Vec<&str> = token_str.split('.').collect();
 
+        println!("parts: {:#?}", parts);
+
         let (ident_b64u, exp, sign_b64u) = (
             parts[0],
             parts[1],
@@ -139,7 +141,7 @@ mod tests {
     use std::thread;
     use std::time::Duration;
 
-    use anyhow::{Result};
+    use anyhow::Result;
     use super::*;
 
     #[ignore]

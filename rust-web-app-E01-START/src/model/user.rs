@@ -61,12 +61,12 @@ impl HasFields for UserForLogin {
 pub struct UserForAuth {
     pub id: i64,
     pub username: String,    
-    pub token_salt: Uuid,
+    pub pwd_token_salt: Uuid,
 }
 impl HasFields for UserForAuth {
     fn get_not_null_keys_and_values(&self) -> (Vec<String>, Vec<String>) {
-        let keys = vec!["id".to_string(), "username".to_string(), "token_salt".to_string()];
-        let values = vec![self.id.to_string(), self.username.to_string(), self.token_salt.to_string()];
+        let keys = vec!["id".to_string(), "username".to_string(), "pwd_token_salt".to_string()];
+        let values = vec![self.id.to_string(), self.username.to_string(), self.pwd_token_salt.to_string()];
         (keys, values)
     }
 }

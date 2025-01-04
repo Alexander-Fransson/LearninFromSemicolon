@@ -15,6 +15,8 @@ mod utils;
 pub mod _dev_utils;
 
 pub use self::error::{Error, Result};
+use axum::response::Html;
+use axum::routing::get;
 pub use fields_macro::Fields;
 
 pub trait Fields {
@@ -24,6 +26,7 @@ pub trait Fields {
 }
 
 pub use config::config;
+use web::mw_auth::mw_ctx_require;
 
 use crate::model::ModelManager;
 use crate::web::mw_auth::mw_ctx_resolve;
@@ -62,13 +65,18 @@ async fn server_0() -> Result<()> {
 	// let routes_rpc = rpc::routes(mm.clone())
 	//   .route_layer(middleware::from_fn(mw_ctx_require));
 
+	let routes_hello = Router::new()
+	.route("/hello", get(|| async { Html("Hello World!") }))
+	.route_layer(middleware::from_fn(mw_ctx_require));
+
 	let routes_all = Router::new()
-		.merge(routes_login::routes(mm.clone()))
-		// .nest("/api", routes_rpc)
-		.layer(middleware::map_response(mw_reponse_map))
-		.layer(middleware::from_fn_with_state(mm.clone(), mw_ctx_resolve))
-		.layer(CookieManagerLayer::new())
-		.fallback_service(routes_static::serve_dir());
+	.merge(routes_login::routes(mm.clone()))
+	// .nest("/api", routes_rpc)
+	.merge(routes_hello)
+	.layer(middleware::map_response(mw_reponse_map))
+	.layer(middleware::from_fn_with_state(mm.clone(), mw_ctx_resolve))
+	.layer(CookieManagerLayer::new())
+	.fallback_service(routes_static::serve_dir());
 
 	// region:    --- Start Server
 

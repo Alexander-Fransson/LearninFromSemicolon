@@ -42,6 +42,9 @@ impl IntoResponse for Error {
 	fn into_response(self) -> Response {
 		debug!("{:<12} - model::Error {self:?}", "INTO_RES");
 
+		/////////////////////////
+		/// For some reason the error does not change, it is suposed to take the self and return the coresponding client error, maybe I should look into that in itself in the future
+
 		// Create a placeholder Axum reponse.
 		let mut response = StatusCode::INTERNAL_SERVER_ERROR.into_response();
 

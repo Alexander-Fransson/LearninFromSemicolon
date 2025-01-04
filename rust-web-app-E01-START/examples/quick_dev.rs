@@ -16,6 +16,8 @@ async fn main() -> Result<()> {
 			"pwd": "welcome"
 		}),
 	);
+	hc.do_get("/hello").await?.print().await?;
+
 	req_login.await?.print().await?;
 
 	hc.do_get("/hello").await?.print().await?;

@@ -27,6 +27,7 @@ pub trait Fields {
 
 pub use config::config;
 use web::mw_auth::mw_ctx_require;
+use web::rpc;
 
 use crate::model::ModelManager;
 use crate::web::mw_auth::mw_ctx_resolve;
@@ -62,8 +63,8 @@ async fn server_0() -> Result<()> {
 	let mm = ModelManager::new().await?;
 
 	// -- Define Routes
-	// let routes_rpc = rpc::routes(mm.clone())
-	//   .route_layer(middleware::from_fn(mw_ctx_require));
+	let routes_rpc = rpc::routes(mm.clone())
+	.route_layer(middleware::from_fn(mw_ctx_require));
 
 	let routes_hello = Router::new()
 	.route("/hello", get(|| async { Html("Hello World!") }))
@@ -71,8 +72,8 @@ async fn server_0() -> Result<()> {
 
 	let routes_all = Router::new()
 	.merge(routes_login::routes(mm.clone()))
-	// .nest("/api", routes_rpc)
 	.merge(routes_hello)
+	.nest("/api",routes_rpc)
 	.layer(middleware::map_response(mw_reponse_map))
 	.layer(middleware::from_fn_with_state(mm.clone(), mw_ctx_resolve))
 	.layer(CookieManagerLayer::new())

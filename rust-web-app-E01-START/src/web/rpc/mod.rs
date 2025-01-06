@@ -42,7 +42,22 @@ async fn rpc_handler(
     ctx: Ctx,
     Json(rpc_req): Json<RpcRequest>
 ) -> Response {
-    _rpc_handler(ctx, mm, rpc_req).await.into_response()
+    let rpc_info = RpcInfo {
+        id: rpc_req.id.clone(),
+        method: rpc_req.method.clone()
+    };
+
+    let mut res = _rpc_handler(ctx, mm, rpc_req).await.into_response();
+    res.extensions_mut().insert(rpc_info); 
+    
+    res
+}
+
+// rpc basic information holding the id and method for further logging
+#[derive(Debug, Clone)]
+pub struct RpcInfo {
+    pub id: Option<Value>,
+    pub method: String,
 }
 
 macro_rules! exec_rpc_fn {
